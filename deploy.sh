@@ -3,26 +3,6 @@
 IS_BLUE_RUNNING=$(docker ps | grep blue)
 export NGINX_CONF="/etc/nginx/nginx.conf"
 
-# 컨테이너 디버깅 함수
-debug_container() {
-  local container_name=$1
-  echo ">>> 컨테이너 디버깅: $container_name"
-  echo ">>> Docker 컨테이너 상태 확인:"
-  docker ps -a | grep $container_name
-
-  echo ">>> 컨테이너 로그 확인:"
-  docker logs $container_name
-
-  echo ">>> 컨테이너 내부 네트워크 확인:"
-  docker exec $container_name netstat -tulpn || echo "네트워크 상태 확인 실패"
-
-  echo ">>> Spring 애플리케이션 프로세스 확인:"
-  docker exec $container_name ps -ef | grep java || echo "프로세스 확인 실패"
-
-  echo ">>> 컨테이너 내부에서 직접 헬스 체크:"
-  docker exec $container_name curl -v localhost:8080/actuator/health || echo "내부 헬스 체크 실패"
-}
-
 # blue 가 실행 중이면 green 을 up
 if [ -n "$IS_BLUE_RUNNING" ]; then
   echo "### BLUE => GREEN ####"
@@ -30,21 +10,34 @@ if [ -n "$IS_BLUE_RUNNING" ]; then
   echo ">>> green 컨테이너 실행"
   docker compose up -d green
 
-  echo ">>> 애플리케이션 시작 대기 중... (15초)"
-  sleep 15
+  echo ">>> 애플리케이션 시작 대기 중... (20초)"
+  sleep 20
 
-  # 컨테이너 디버깅
-  debug_container "green"
+  echo ">>> health check 진행..."
+  MAX_RETRIES=5
+  RETRY_COUNT=0
 
-  echo ">>> 외부에서 green 헬스 체크 시도:"
-  curl -v http://localhost:8082/actuator/health
+  while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    echo ">>> health check 시도 중... ($((RETRY_COUNT+1))/$MAX_RETRIES)"
+    RESPONSE=$(curl -s -m 5 http://localhost:8082/actuator/health || echo "FAILED")
 
-  echo ">>> 계속 배포를 진행하시겠습니까? (y/n)"
-  read answer
-  if [ "$answer" != "y" ]; then
-    echo ">>> 배포 중단"
-    exit 1
-  fi
+    if [[ "$RESPONSE" == *"UP"* ]]; then
+      echo ">>> green health check 성공!"
+      break
+    else
+      echo ">>> health check 실패, 재시도 중..."
+      RETRY_COUNT=$((RETRY_COUNT+1))
+
+      if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+        echo ">>> 최대 재시도 횟수에 도달했습니다. 배포를 중단합니다."
+        docker compose logs green
+        docker compose stop green
+        exit 1
+      fi
+
+      sleep 5
+    fi
+  done
 
   echo ">>> Nginx 설정 변경 (green)"
   sudo sed -i 's/set $ACTIVE_APP blue;/set $ACTIVE_APP green;/' $NGINX_CONF
@@ -60,21 +53,34 @@ else
   echo ">>> blue 컨테이너 실행"
   docker compose up -d blue
 
-  echo ">>> 애플리케이션 시작 대기 중... (15초)"
-  sleep 15
+  echo ">>> 애플리케이션 시작 대기 중... (20초)"
+  sleep 20
 
-  # 컨테이너 디버깅
-  debug_container "blue"
+  echo ">>> health check 진행..."
+  MAX_RETRIES=5
+  RETRY_COUNT=0
 
-  echo ">>> 외부에서 blue 헬스 체크 시도:"
-  curl -v http://localhost:8081/actuator/health
+  while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    echo ">>> health check 시도 중... ($((RETRY_COUNT+1))/$MAX_RETRIES)"
+    RESPONSE=$(curl -s -m 5 http://localhost:8081/actuator/health || echo "FAILED")
 
-  echo ">>> 계속 배포를 진행하시겠습니까? (y/n)"
-  read answer
-  if [ "$answer" != "y" ]; then
-    echo ">>> 배포 중단"
-    exit 1
-  fi
+    if [[ "$RESPONSE" == *"UP"* ]]; then
+      echo ">>> blue health check 성공!"
+      break
+    else
+      echo ">>> health check 실패, 재시도 중..."
+      RETRY_COUNT=$((RETRY_COUNT+1))
+
+      if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+        echo ">>> 최대 재시도 횟수에 도달했습니다. 배포를 중단합니다."
+        docker compose logs blue
+        docker compose stop blue
+        exit 1
+      fi
+
+      sleep 5
+    fi
+  done
 
   echo ">>> Nginx 설정 변경 (blue)"
   sudo sed -i 's/set $ACTIVE_APP green;/set $ACTIVE_APP blue;/' $NGINX_CONF
