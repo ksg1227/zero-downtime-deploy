@@ -9,7 +9,7 @@ if [ -n "$IS_BLUE_RUNNING" ]; then
 
   echo ">>> green 컨테이너 실행"
   docker compose up -d green
-  sleep 5
+  sleep 7
 
   echo ">>> health check 진행..."
   while true; do
@@ -34,7 +34,7 @@ else
   
   echo ">>> blue 컨테이너 실행"
   docker compose up -d blue
-  sleep 5
+  sleep 7
 
   echo ">>> health check 진행..."
   while true; do
