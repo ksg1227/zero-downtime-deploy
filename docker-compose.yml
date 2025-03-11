@@ -4,7 +4,7 @@ services:
     container_name: blue
     restart: always
     ports:
-      -8081:80
+      - 8081:80
   green:
     image: zeroTimeDeploy:latest
     container_name: green
