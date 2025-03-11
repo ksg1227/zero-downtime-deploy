@@ -1,12 +1,12 @@
 services:
   blue:
-    image: zerotimedeploy:latest
+    image: ksg1227/zerotimedeploy:latest
     container_name: blue
     restart: always
     ports:
       - 8081:80
   green:
-    image: zerotimedeploy:latest
+    image: ksg1227/zerotimedeploy:latest
     container_name: green
     restart: always
     ports:
