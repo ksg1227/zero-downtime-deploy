@@ -61,4 +61,3 @@ jobs:
             chmod +x ./deploy.sh
             ./deploy.sh
             docker image prune -f
-            
