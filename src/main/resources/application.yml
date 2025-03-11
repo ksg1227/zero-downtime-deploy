@@ -1,20 +1,12 @@
 spring:
   profiles:
-    active: blue
+    active: dev
 
 ---
 spring:
   config:
     activate:
-      on-profile: blue
+      on-profile: dev
 server:
-  port: 8080
-
----
-spring:
-  config:
-    activate:
-      on-profile: green
-server:
-  port: 8080
+  port: 80
 
