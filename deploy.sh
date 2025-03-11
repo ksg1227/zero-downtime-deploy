@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IS_BLUE_RUNNING=$(docker ps | grep blue)
-export NGINX_CONF="./etc/nginx/nginx.conf"
+export NGINX_CONF="/etc/nginx/nginx.conf"
 
 # blue 가 실행 중이면 green 을 up
 if [ -z "$IS_BLUE_RUNNING" ]; then
