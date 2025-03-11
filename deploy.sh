@@ -1,19 +1,19 @@
 #!/bin/bash
 
 IS_BLUE_RUNNING=$(docker ps | grep blue)
-NGINX_CONF = "/etc/nginx/nginx.conf"
+NGINX_CONF = "./etc/nginx/nginx.conf"
 
 # blue 가 실행 중이면 green 을 up
 if [ -z "$IS_BLUE_RUNNING" ]; then
   echo "### BLUE => GREEN ####"
 
   echo ">>> green 컨테이너 실행"
-  docker-compose up -d green
+  docker compose up -d green
   sleep 5
 
   echo ">>> health check 진행..."
   while true; do
-    RESPONSE=$(curl http://127.0.0.1:8082/actuator/health | grep UP)
+    RESPONSE=$(curl http://localhost:8082/actuator/health | grep UP)
     if [ -n "$RESPONSE" ]; then
       ehco ">>> green health check 성공! "
       break;
@@ -26,17 +26,17 @@ if [ -z "$IS_BLUE_RUNNING" ]; then
   sudo nginx -s reload
 
   echo ">>> blue 컨테이너 종료"
-  docker-compose stop blue
+  docker compose stop blue
 
 # blue 가 실행 중이면 green 을 up
 else
   echo "### GREEN => BLUE ####"
   echo ">>> blue 컨테이너 실행"
-  docker-compose up -d blue
+  docker compose up -d blue
 
   echo ">>> health check 진행..."
   while true; do
-    RESPONSE=$(curl http://127.0.0.1:8081/actuator/health | grep UP)
+    RESPONSE=$(curl http://localhost:8081/actuator/health | grep UP)
     if [ -n "$RESPONSE" ]; then
       ehco ">>> blue health check 성공! "
       break;
@@ -49,7 +49,7 @@ else
   sudo nginx -s reload
 
   echo ">>> green 컨테이너 종료"
-  docker-compose stop green
+  docker compose stop green
 fi
 
 
