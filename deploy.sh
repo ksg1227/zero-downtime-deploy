@@ -31,14 +31,16 @@ if [ -n "$IS_BLUE_RUNNING" ]; then
 # blue 가 실행 중이면 green 을 up
 else
   echo "### GREEN => BLUE ####"
+  
   echo ">>> blue 컨테이너 실행"
   docker compose up -d blue
+  sleep 5
 
   echo ">>> health check 진행..."
   while true; do
     RESPONSE=$(curl http://localhost:8081/actuator/health | grep UP)
     if [ -n "$RESPONSE" ]; then
-      ehco ">>> blue health check 성공! "
+      echo ">>> blue health check 성공! "
       break;
     fi
     sleep 3
