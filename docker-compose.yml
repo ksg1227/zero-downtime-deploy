@@ -5,6 +5,7 @@ services:
     restart: always
     ports:
       - 8081:8080
+      
   green:
     image: ksg1227/zerotimedeploy:latest
     container_name: green
