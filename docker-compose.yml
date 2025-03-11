@@ -1,12 +1,12 @@
 services:
   blue:
-    image: zeroTimeDeploy:latest
+    image: zerotimedeploy:latest
     container_name: blue
     restart: always
     ports:
       - 8081:80
   green:
-    image: zeroTimeDeploy:latest
+    image: zerotimedeploy:latest
     container_name: green
     restart: always
     ports:
