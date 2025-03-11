@@ -15,7 +15,7 @@ if [ -z "$IS_BLUE_RUNNING" ]; then
   while true; do
     RESPONSE=$(curl http://localhost:8082/actuator/health | grep UP)
     if [ -n "$RESPONSE" ]; then
-      ehco ">>> green health check 성공! "
+      echo ">>> green health check 성공! "
       break;
     fi
     sleep 3
