@@ -8,7 +8,7 @@ spring:
     activate:
       on-profile: blue
 server:
-  port: 8080  # 모든 프로필에서 8080 포트로 통일
+  port: 8081
 
 ---
 spring:
@@ -16,5 +16,5 @@ spring:
     activate:
       on-profile: green
 server:
-  port: 8080  # 모든 프로필에서 8080 포트로 통일
+  port: 8082
 
