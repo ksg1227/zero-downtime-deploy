@@ -28,7 +28,7 @@ if [ -n "$IS_BLUE_RUNNING" ]; then
   echo ">>> blue 컨테이너 종료"
   docker compose stop blue
 
-# blue 가 실행 중이면 green 을 up
+# green 이 실행 중이면 blue 를 up
 else
   echo "### GREEN => BLUE ####"
   
