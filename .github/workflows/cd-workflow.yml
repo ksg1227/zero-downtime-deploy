@@ -46,7 +46,9 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           envs: GITHUB_SHA
           script: |
+            echo "🚚 Sending deploy.sh to EC2"
+            scp -i ${{ secrets.EC2_KEY }} -P ${{ secrets.EC2_PORT }} deploy.sh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:./
             echo "✋🏻Stopping existing container"
-            chmod ./deploy.sh ./deploy.sh
+            chmod +x ./deploy.sh
             ./deploy.sh
             docker image prune -f
